@@ -1,0 +1,127 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart - Olumpus Wear{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">
+    <i class="bi bi-cart3"></i> Shopping Cart
+    {% if items %}
+    <span class="badge bg-primary">{{ order.get_cart_items }} items</span>
+    {% endif %}
+</h2>
+
+{% if items %}
+<div class="row">
+    <!-- Cart Items -->
+    <div class="col-lg-8">
+        {% for item in items %}
+        <div class="card mb-3 shadow-sm border-0">
+            <div class="row g-0">
+                <div class="col-md-3">
+                    {% if item.product and item.product.image %}
+                    <img src="{{ item.product.image.url }}" class="img-fluid rounded-start" alt="{{ item.product.title }}" style="height: 150px; object-fit: cover;">
+                    {% else %}
+                    <img src="{% static 'store/images/20.jpg' %}" class="img-fluid rounded-start" alt="Product image unavailable" style="height: 150px; object-fit: cover;">
+                    {% endif %}
+                </div>
+                <div class="col-md-9">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">{{ item.product.title }}</h5>
+                                <p class="text-muted mb-1"><small>Rs {{ item.product.price }} each</small></p>
+                                <p class="text-muted mb-0"><small>{{ item.product.category.name }}</small></p>
+                            </div>
+                            <div class="text-end">
+                                <h5 class="text-primary">Rs {{ item.get_total }}</h5>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <span class="me-3"><strong>Qty:</strong></span>
+                                <form action="{% url 'update_item' %}" method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                                    <input type="hidden" name="action" value="remove">
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm" {% if item.quantity <= 1 %}disabled{% endif %}>-</button>
+                                </form>
+                                <span class="mx-3 fw-bold">{{ item.quantity }}</span>
+                                <form action="{% url 'update_item' %}" method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                                    <input type="hidden" name="action" value="add">
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm">+</button>
+                                </form>
+                            </div>
+                            <form action="{% url 'update_item' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                                <input type="hidden" name="action" value="delete">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i> Remove
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <a href="{% url 'store' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Continue Shopping
+        </a>
+    </div>
+    
+    <!-- Order Summary -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 sticky-top" style="top: 80px;">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-receipt"></i> Order Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal</span>
+                    <span>Rs {{ order.get_cart_total }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Shipping</span>
+                    <span class="text-success">Free</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Tax (10%)</span>
+                    <span>Rs {{ order.get_cart_total|floatformat:2 }}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between mb-3">
+                    <h5 class="mb-0">Total</h5>
+                    <h5 class="mb-0 text-primary">Rs {{ order.get_cart_total|floatformat:2 }}</h5>
+                </div>
+                {% if user.is_authenticated %}
+                <a href="{% url 'checkout' %}" class="btn btn-primary w-100">
+                    <i class="bi bi-credit-card"></i> Proceed to Checkout
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary w-100">
+                    <i class="bi bi-box-arrow-in-right"></i> Login to Checkout
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- Empty Cart -->
+<div class="text-center py-5 bg-white rounded-3 shadow-sm">
+    <i class="bi bi-cart-x display-1 text-muted"></i>
+    <h3 class="mt-3">Your Cart is Empty</h3>
+    <p class="text-muted">Looks like you haven't added any items to your cart yet.</p>
+    <a href="{% url 'store' %}" class="btn btn-primary btn-lg mt-3">
+        <i class="bi bi-bag"></i> Start Shopping
+    </a>
+</div>
+{% endif %}
+
+{% endblock %}
+

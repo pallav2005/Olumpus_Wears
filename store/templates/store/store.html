@@ -1,0 +1,164 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Home - Olumpus Wear{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero-minimal mb-5">
+    <div class="hero-minimal-inner text-center">
+        <p class="hero-brand mb-2">Olumpus Wear</p>
+        <h1 class="hero-heading mb-3">NEW COLLECTION 2026</h1>
+        <p class="hero-subtitle mb-4">Refined everyday essentials with a modern luxury silhouette.</p>
+        <a href="#products" class="btn btn-primary hero-cta">SHOP COLLECTION</a>
+    </div>
+</section>
+
+<!-- Products Section -->
+<section id="products" class="mb-5">
+    {% if products %}
+    <div class="products-topbar d-flex justify-content-end mb-3">
+        <button id="viewAllProductsBtn" type="button" class="btn btn-primary">View All Products</button>
+    </div>
+
+    <div class="featured-banner-container">
+        <img src="{% static 'store/images/20.jpg' %}" class="featured-banner-image" alt="Product banner">
+    </div>
+
+    <div id="allProductsSection" class="d-none mt-4">
+        <div class="zara-product-grid products-grid">
+            {% for product in products %}
+            <article class="zara-product-card product-card">
+                <a href="{% url 'product_detail' product.id %}" class="zara-product-image-wrap">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" class="zara-product-image product-img" alt="{{ product.title }}">
+                    {% else %}
+                    <img src="{% static 'store/images/20.jpg' %}" class="zara-product-image product-img" alt="{{ product.title }}">
+                    {% endif %}
+                </a>
+                <div class="zara-product-meta">
+                    <h5 class="zara-product-name mb-1">
+                        <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">{{ product.title }}</a>
+                    </h5>
+                    <p class="zara-product-price mb-0">Rs {{ product.price }}</p>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <!-- No Products -->
+    <div class="text-center py-5 bg-white rounded-3 shadow-sm">
+        <i class="bi bi-inbox display-1 text-muted"></i>
+        <h3 class="mt-3">No Products Found</h3>
+        <p class="text-muted">We couldn't find any products matching your criteria.</p>
+        <a href="{% url 'store' %}" class="btn btn-primary mt-2">
+            <i class="bi bi-arrow-left"></i> Clear Filters
+        </a>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Pagination -->
+{% if page_obj.paginator.num_pages > 1 %}
+<nav id="allProductsPagination" class="d-none" aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                <i class="bi bi-chevron-left"></i> Previous
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link"><i class="bi bi-chevron-left"></i> Previous</span>
+        </li>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+        </li>
+        {% else %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">{{ num }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                Next <i class="bi bi-chevron-right"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Next <i class="bi bi-chevron-right"></i></span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<!-- About Section -->
+<section id="about" class="info-section mt-5">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4 p-lg-5">
+            <h3 class="mb-3"><i class="bi bi-info-circle me-2"></i>About Olumpus Wear</h3>
+            <p class="mb-0">
+                Olumpus Wear is a premium clothing marketplace focused on bold essentials, everyday streetwear, and curated
+                seasonal drops. We combine style, quality, and value so you can shop confidently.
+            </p>
+            <p class="mb-0 mt-3">
+                <strong>Email:</strong> thepallavdahal@gmail.com<br>
+                <strong>Phone:</strong> 6296620322
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="info-section mt-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4 p-lg-5">
+            <h3 class="mb-3"><i class="bi bi-envelope me-2"></i>Contact</h3>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <p class="mb-1"><strong>Email</strong></p>
+                    <p class="mb-0">thepallavdahal@gmail.com</p>
+                </div>
+                <div class="col-md-4">
+                    <p class="mb-1"><strong>Phone</strong></p>
+                    <p class="mb-0">6296620322</p>
+                </div>
+                <div class="col-md-4">
+                    <p class="mb-1"><strong>Hours</strong></p>
+                    <p class="mb-0">Mon-Sat, 9:00 AM - 7:00 PM</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var btn = document.getElementById('viewAllProductsBtn');
+    var allSection = document.getElementById('allProductsSection');
+    var pagination = document.getElementById('allProductsPagination');
+
+    if (!btn || !allSection) return;
+
+    btn.addEventListener('click', function () {
+        allSection.classList.remove('d-none');
+        if (pagination) pagination.classList.remove('d-none');
+        btn.classList.add('d-none');
+        allSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+});
+</script>
+
+{% endblock %}
+
